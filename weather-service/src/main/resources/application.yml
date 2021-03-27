@@ -1,0 +1,9 @@
+application:
+  id: d2929e9483efc82c82c32ee7e02d5
+  base:
+    url: http://samples.openweathermap.org
+  certificate:
+    passcode: password
+
+server:
+  port: 8085
