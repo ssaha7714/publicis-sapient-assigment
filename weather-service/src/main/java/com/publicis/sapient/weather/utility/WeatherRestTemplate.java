@@ -24,31 +24,31 @@ import java.security.cert.X509Certificate;
 public class WeatherRestTemplate {
 	private static final Logger LOGGER = LoggerFactory.getLogger(WeatherRestTemplate.class);
 
-	private static int MAX_RETRY_COUNT = 1;
+	private static final int MAX_RETRY_COUNT = 2;
 
 	private RestTemplate restTemplate;
 	private RestTemplate restTemplateSSL;
 	private static WeatherRestTemplate weatherRestTemplate;
 	private static WeatherRestTemplate weatherRestTemplateSSL;
 
-	private WeatherRestTemplate() {
-		restTemplate = new RestTemplate(getClientHttpRequestFactory());
-		restTemplate.setErrorHandler(new WeatherRestResponseErrorHandler());
-	}
+
 
 	private WeatherRestTemplate(boolean ssl) {
-		restTemplateSSL = new RestTemplate(getClientHttpRequestFactorySSL());
-		restTemplateSSL.setErrorHandler(new WeatherRestResponseErrorHandler());
+		if (ssl){
+			restTemplateSSL = new RestTemplate(getClientHttpRequestFactorySSL());
+			restTemplateSSL.setErrorHandler(new WeatherRestResponseErrorHandler());
+		}else{
+			restTemplate = new RestTemplate(getClientHttpRequestFactory());
+			restTemplate.setErrorHandler(new WeatherRestResponseErrorHandler());
+		}
 	}
-
-
-	public synchronized static WeatherRestTemplate getInstance() {
+	public static synchronized  WeatherRestTemplate getInstance() {
 		if (weatherRestTemplate == null)
-			weatherRestTemplate = new WeatherRestTemplate();
+			weatherRestTemplate = new WeatherRestTemplate(false);
 		return weatherRestTemplate;
 	}
 
-	public synchronized static WeatherRestTemplate getInstanceSSL() {
+	public static synchronized  WeatherRestTemplate getInstanceSSL() {
 		if (weatherRestTemplateSSL == null)
 			weatherRestTemplateSSL = new WeatherRestTemplate(true);
 		return weatherRestTemplateSSL;
@@ -67,11 +67,7 @@ public class WeatherRestTemplate {
 		SSLContext sslContext = null;
 		try {
 			sslContext = org.apache.http.ssl.SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy).build();
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		} catch (KeyManagementException e) {
-			e.printStackTrace();
-		} catch (KeyStoreException e) {
+		} catch (NoSuchAlgorithmException | KeyManagementException |  KeyStoreException e) {
 			e.printStackTrace();
 		}
 		SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext);

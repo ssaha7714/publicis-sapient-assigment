@@ -35,7 +35,7 @@ public class WeatherExchange {
 	public WeatherResponse restExchangeGeneric(final Map<String, Object> headerMap, final Object payloadDto,
 											   final String targetUrl,
 											   final Map<String, Object> queryMap, final HttpMethod method,
-											   final String errString, boolean isSSL) throws Exception{
+											   final String errString, boolean isSSL) {
 		WeatherResponse weatherResponse = new WeatherResponse();
 		WeatherData weatherData = null;
 
@@ -88,7 +88,6 @@ public class WeatherExchange {
 			weatherData = (WeatherData) mapper.readValue(body, new TypeReference<WeatherData>() {});
 		} catch (final IOException e) {
 			LOGGER.error(errString + e.getMessage(), e);
-			weatherResponse = new WeatherResponse();
 			weatherResponse.setMessage(body);
 		}
 		weatherResponse.setStatus(response.getStatusCode().value());

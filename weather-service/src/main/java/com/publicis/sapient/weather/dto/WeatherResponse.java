@@ -43,13 +43,13 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @JsonInclude(Include.NON_EMPTY)
-public class WeatherResponse<T> implements Serializable {
+public class WeatherResponse implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@JsonProperty
 	private Integer status;
 	private String message;
-	private T response;
+	private Object response;
 	private HttpHeaders responseHeaders;
 
 
@@ -57,11 +57,11 @@ public class WeatherResponse<T> implements Serializable {
 		this(status, message, null, null);
 	}
 
-	public WeatherResponse(HttpStatus status, T response) {
+	public WeatherResponse(HttpStatus status, Object response) {
 		this(status, null, response, null);
 	}
 
-	public WeatherResponse(HttpStatus status, String message, T response) {
+	public WeatherResponse(HttpStatus status, String message, Object response) {
 		this(status, message, response, null);
 	}
 
@@ -69,11 +69,11 @@ public class WeatherResponse<T> implements Serializable {
 		this(status, message, null, responseHeaders);
 	}
 
-	public WeatherResponse(HttpStatus status, T response, HttpHeaders responseHeaders) {
+	public WeatherResponse(HttpStatus status, Object response, HttpHeaders responseHeaders) {
 		this(status, null, response, responseHeaders);
 	}
 
-	public WeatherResponse(HttpStatus status, String message, T response, HttpHeaders responseHeaders) {
+	public WeatherResponse(HttpStatus status, String message, Object response, HttpHeaders responseHeaders) {
 		super();
 		this.status = status.value();
 		this.message = message;

@@ -1,7 +1,6 @@
 package com.publicis.sapient.weather.controller;
 
 import com.publicis.sapient.weather.dto.WeatherResponse;
-import com.publicis.sapient.weather.service.WeatherService;
 import com.publicis.sapient.weather.validator.ValidateInput;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,12 +16,9 @@ import static org.mockito.Mockito.when;
 
 
 @ExtendWith(MockitoExtension.class)
-public class WeatherControllerTest {
+class WeatherControllerTest {
     @InjectMocks
     WeatherController weatherController;
-
-    @Mock
-    WeatherService weatherService;
 
     @Mock
     ValidateInput inputData;
@@ -31,12 +27,12 @@ public class WeatherControllerTest {
     ResponseEntity<WeatherResponse> mockResponseEntity;
 
     @Test
-    public void testGetWeatherInfoByCityNameWhenDaysGreaterThan5() {
+    void testGetWeatherInfoByCityNameWhenDaysGreaterThan5() {
         //given
         ResponseEntity<WeatherResponse> responseEntity;
         WeatherResponse weatherResponse = new WeatherResponse();
         weatherResponse.setMessage("Forecast can only be done on next 5 days");
-        responseEntity = new ResponseEntity<>(new WeatherResponse<>(HttpStatus.PRECONDITION_FAILED, weatherResponse), HttpStatus.PRECONDITION_FAILED);
+        responseEntity = new ResponseEntity<>(new WeatherResponse(HttpStatus.PRECONDITION_FAILED, weatherResponse), HttpStatus.PRECONDITION_FAILED);
 
         when(inputData.validateInputData(6)).thenReturn(responseEntity);
 

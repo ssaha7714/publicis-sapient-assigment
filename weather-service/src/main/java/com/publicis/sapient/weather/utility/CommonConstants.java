@@ -10,5 +10,4 @@ public class CommonConstants {
     public static final String APP_ID = "appid";
     public static final String FILTER = "q";
     public static final String DATE_TIME_FORMATTER = "yyyy-MM-dd HH:mm:ss";
-
 }

@@ -24,7 +24,7 @@ public class WeatherController {
 
     @GetMapping("/weather/{version}/forecast")
     public ResponseEntity<WeatherResponse> getWeatherInfoByCityName(@PathVariable("version") final String version,
-       @RequestParam(value = "city", required = true) String filter, @RequestParam(value = "days", defaultValue = "3") Integer days) {
+                                                                    @RequestParam(value = "city", required = true) String filter, @RequestParam(value = "days", defaultValue = "3") Integer days) {
         LOGGER.info("Executing getWeatherInfoByCityName with user input version: {} city {} days {} ", version, filter, days );
         if(days !=3) {
             ResponseEntity<WeatherResponse> responseEntity = inputData.validateInputData(days);

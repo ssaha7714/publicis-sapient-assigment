@@ -32,10 +32,10 @@ public class WeatherService {
     /**
      * Service method to get weather info for <days> days.
      *
-     * @param version
-     * @param filter
-     * @param days
-     * @return
+     * @param version API version
+     * @param filter city value
+     * @param days days value
+     * @return ResponseEntity<WeatherResponse>
      */
     public ResponseEntity<WeatherResponse> getWeatherInfo(String version, String filter, int days) {
         final String errString = "Error occurred while fetching weather data";
@@ -54,14 +54,14 @@ public class WeatherService {
                     queryMap, HttpMethod.GET, errString, true);
         } catch (final Exception e) {
             LOGGER.error(errString + e.getMessage(), e);
-            return new ResponseEntity<>(new WeatherResponse<>(HttpStatus.INTERNAL_SERVER_ERROR, CommonConstants.SERVICE_UNKNOWN_EXCEPTION), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new WeatherResponse(HttpStatus.INTERNAL_SERVER_ERROR, CommonConstants.SERVICE_UNKNOWN_EXCEPTION), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         // Filtering out required data from original set
         java.util.List<List> desiredData = filterDesiredDaysData(thirdPartyWeatherData, days);
 
         // Applying required business logic
-        FinalResponse finalResponse = doProcessing(desiredData, days);
-        return new ResponseEntity<>(new WeatherResponse<>(HttpStatus.OK, finalResponse), HttpStatus.OK);
+        FinalResponse finalResponse = doProcessing(desiredData);
+        return new ResponseEntity<>(new WeatherResponse(HttpStatus.OK, finalResponse), HttpStatus.OK);
     }
 
     /**
@@ -70,10 +70,9 @@ public class WeatherService {
      * 'Carry umbrella' or 'Use sunscreen lotion' respectively, in the output, for that day.
      *
      * @param desiredData
-     * @param days
      * @return
      */
-    private FinalResponse doProcessing(java.util.List<List> desiredData, int days){
+    private FinalResponse doProcessing(java.util.List<List> desiredData){
         // Grouping datasets in a Map based on date
         Map<LocalDate, Set<List>> collectedData = desiredData.stream()
                 .collect(Collectors.groupingBy(List::getDt_txt,
@@ -90,7 +89,6 @@ public class WeatherService {
             double maxTempInKelvin = maxTempSet.stream().mapToDouble(value->value).max().orElseThrow(NoSuchElementException::new);
 
             // As default unit is Kelvin, converting to celsius
-            double minTemp = minTempInKelvin - 273.15;
             double maxTemp = maxTempInKelvin - 273.15;
 
             String message = null;
@@ -102,13 +100,15 @@ public class WeatherService {
                     .map(item -> item.getRain().get_3h())
                     .collect(Collectors.toSet());
 
-            if(rainCollector.size()>0 ){
+            if(!rainCollector.isEmpty()){
                 message = "Carry umbrella";
             }
 
             DayWiseData dayWiseData = new DayWiseData(element, maxTempInKelvin, minTempInKelvin, message);
             resultSet.add(dayWiseData);
         }
+        // Sorting result set based on date
+        Collections.sort(resultSet, (x, y) -> x.getDate().compareTo(y.getDate()));
         finalResponse.setData(resultSet);
         return  finalResponse;
     }
@@ -122,15 +122,14 @@ public class WeatherService {
      * @param days
      * @return
      */
-    private java.util.List<List> filterDesiredDaysData(WeatherResponse<?> weatherResponse, int days) {
+    private java.util.List<List> filterDesiredDaysData(WeatherResponse weatherResponse, int days) {
         WeatherData response = (WeatherData)weatherResponse.getResponse();
         java.util.List<List> weatherInfo = response.getList();
         LocalDate first =  weatherInfo.get(0).getDt_txt();
 
-        java.util.List<List> collectedData = weatherInfo.stream().filter(item -> {
-            return ChronoUnit.DAYS.between(first, item.getDt_txt()) <= (days - 1);
-        }).collect(Collectors.toList());
-
+        java.util.List<List> collectedData = weatherInfo.stream()
+                .filter(item -> ChronoUnit.DAYS.between(first, item.getDt_txt()) <= (days - 1))
+                .collect(Collectors.toList());
         return collectedData;
     }
 
