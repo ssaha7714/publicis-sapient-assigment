@@ -51,7 +51,7 @@ public class WeatherService {
         final WeatherResponse thirdPartyWeatherData;
         try {
             thirdPartyWeatherData = weatherExchange.restExchangeGeneric(Collections.emptyMap(), null, url.expand(vMap).toString(),
-                    queryMap, HttpMethod.GET, errString);
+                    queryMap, HttpMethod.GET, errString, true);
         } catch (final Exception e) {
             LOGGER.error(errString + e.getMessage(), e);
             return new ResponseEntity<>(new WeatherResponse<>(HttpStatus.INTERNAL_SERVER_ERROR, CommonConstants.SERVICE_UNKNOWN_EXCEPTION), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -106,7 +106,7 @@ public class WeatherService {
                 message = "Carry umbrella";
             }
 
-            DayWiseData dayWiseData = new DayWiseData(maxTempInKelvin, minTempInKelvin, message);
+            DayWiseData dayWiseData = new DayWiseData(element, maxTempInKelvin, minTempInKelvin, message);
             resultSet.add(dayWiseData);
         }
         finalResponse.setData(resultSet);
